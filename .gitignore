@@ -1,0 +1,13 @@
+# Unrelated older project in the same folder
+/inclinometro/
+
+# ESP-IDF build output and downloaded components
+build/
+managed_components/
+sdkconfig.old
+.cache/
+
+# LVGL Pro Editor preview build and cache
+preview-build/
+preview-bin/
+.cache.json

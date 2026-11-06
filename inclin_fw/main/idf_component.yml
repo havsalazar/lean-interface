@@ -1,0 +1,5 @@
+dependencies:
+  idf: ">=5.4"
+  # Must match lvgl_version in ../inclin_ui/project.xml
+  lvgl/lvgl: "9.6.0"
+  espressif/esp_lcd_st77922: "2.1.1"

@@ -1,0 +1,9 @@
+list(
+  APPEND
+  LV_EDITOR_PROJECT_SOURCES
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/font_lean_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/font_small_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/fonts/font_title_data.c
+  ${CMAKE_CURRENT_LIST_DIR}/inclin_ui_gen.c
+  ${CMAKE_CURRENT_LIST_DIR}/inclin_ui.c
+  ${CMAKE_CURRENT_LIST_DIR}/screens/lean_screen_gen.c)

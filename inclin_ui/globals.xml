@@ -1,0 +1,86 @@
+<globals>
+    <api>
+        <!-- Add <enumdefs> here -->
+    </api>
+
+    <consts>
+        <!-- Palette: dark navy fading into deep blue, lavender gauges, blue accent -->
+        <color name="color_bg_top" value="0x1c2335"/>
+        <color name="color_bg_bottom" value="0x0a1c9c"/>
+        <!-- Background while leaning past lean_warn (amber) and lean_danger (red).
+             The tops stay dark so the orange/red readouts keep their contrast. -->
+        <color name="color_bg_warn_top" value="0x2a2210"/>
+        <color name="color_bg_warn_bottom" value="0x7a4a00"/>
+        <color name="color_bg_danger_top" value="0x2e1012"/>
+        <color name="color_bg_danger_bottom" value="0x8c1010"/>
+        <color name="color_track" value="0x2c3656"/>
+        <color name="color_gauge" value="0xb4c2ff"/>
+        <color name="color_accent" value="0x2f6bff"/>
+        <color name="color_accent_text" value="0x5c8cff"/>
+        <color name="color_text" value="0xf2f4f8"/>
+        <color name="color_text_muted" value="0xc0c8e0"/>
+        <color name="color_warn" value="0xffb020"/>
+        <color name="color_danger" value="0xff5a50"/>
+
+        <!-- Spacing -->
+        <int name="space_xs" value="4"/>
+        <int name="space_sm" value="8"/>
+        <int name="space_md" value="12"/>
+
+        <!-- Lean gauge: the half circle spans -lean_limit..lean_limit degrees.
+             A motorcycle never leans further while riding, so this gives the arc more travel.
+             Beyond it the arc stays full; the number still shows the real angle. -->
+        <int name="lean_limit" value="60"/>
+        <int name="lean_gauge_size" value="236"/>
+        <int name="lean_gauge_width" value="20"/>
+        <int name="lean_warn" value="30"/>
+        <int name="lean_danger" value="45"/>
+
+        <!-- G bars: full scale in 1/100 g (150 = 1.5 g) -->
+        <int name="g_full_scale" value="150"/>
+        <int name="g_bar_width" value="30"/>
+        <int name="g_bar_height" value="190"/>
+    </consts>
+
+    <subjects>
+        <!-- Written by the firmware (inclin_fw/main/imu_task.c) -->
+        <!-- Lean (roll) angle in whole degrees. Negative = leaning left, positive = right -->
+        <int name="subject_lean_deg" value="0" min_value="-90" max_value="90"/>
+        <!-- The same without the sign, for the big readout -->
+        <int name="subject_lean_abs_deg" value="0" min_value="0" max_value="90"/>
+        <!-- Longitudinal acceleration in 1/100 g. Positive = accelerating, negative = braking -->
+        <int name="subject_accel_cg" value="0" min_value="-300" max_value="300"/>
+        <!-- The same split into two magnitudes for the bars, in 1/100 g, 0 or more -->
+        <int name="subject_g_decel_cg" value="0" min_value="0" max_value="300"/>
+        <int name="subject_g_accel_cg" value="0" min_value="0" max_value="300"/>
+        <!-- Maximum lean seen on each side, in degrees. Long-press the screen to reset -->
+        <int name="subject_lean_max_left" value="0" min_value="0" max_value="90"/>
+        <int name="subject_lean_max_right" value="0" min_value="0" max_value="90"/>
+
+        <!-- Gyro reset: the UI sets the request to 1, the firmware recalibrates and sets it back to 0 -->
+        <int name="subject_imu_cal_request" value="0" min_value="0" max_value="1"/>
+        <!-- Written by the firmware: 1 while calibrating (keep still) -->
+        <int name="subject_imu_calibrating" value="0" min_value="0" max_value="1"/>
+    </subjects>
+
+    <images>
+        <!-- Add <file> or <data> tags here -->
+    </images>
+
+    <fonts>
+        <!-- Big lean angle readout: digits and the degree sign only, to keep flash small -->
+        <bin name="font_lean" src_path="fonts/Montserrat-Bold.ttf" size="56" bpp="4"
+             range="0x30-0x39" symbols="°-" as_file="false"/>
+        <bin name="font_title" src_path="fonts/Montserrat-SemiBold.ttf" size="22" bpp="4"
+             range="0x20-0x7F" symbols="°" as_file="false"/>
+        <bin name="font_small" src_path="fonts/Montserrat-Medium.ttf" size="14" bpp="4"
+             range="0x20-0x7F" symbols="°" as_file="false"/>
+    </fonts>
+
+    <styles>
+        <!-- A plain container: no background, border, padding or scrolling look -->
+        <style name="style_transparent" bg_opa="0" border_width="0" pad_all="0" radius="0"/>
+        <style name="style_text_muted" text_color="{color_text_muted}" text_font="font_small"/>
+        <style name="style_value" text_color="{color_text}" text_font="font_title"/>
+    </styles>
+</globals>

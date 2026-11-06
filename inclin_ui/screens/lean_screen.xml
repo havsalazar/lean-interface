@@ -1,0 +1,420 @@
+<screen>
+	<styles>
+		<!-- Dark navy at the top fading into deep blue at the bottom -->
+		<style
+			name="style_screen"
+			bg_color="{color_bg_top}"
+			bg_grad_color="{color_bg_bottom}"
+			bg_grad_dir="ver"
+			bg_main_stop="120"
+			bg_opa="100%"
+			text_color="{color_text}"
+			text_font="font_small"
+			pad_all="{space_sm}"
+			pad_column="{space_sm}"
+		/>
+		<!-- The background follows the lean: blue, amber from lean_warn, red from lean_danger -->
+		<style
+			name="style_screen_warn"
+			bg_color="{color_bg_warn_top}"
+			bg_grad_color="{color_bg_warn_bottom}"
+		/>
+		<style
+			name="style_screen_danger"
+			bg_color="{color_bg_danger_top}"
+			bg_grad_color="{color_bg_danger_bottom}"
+		/>
+		<style
+			name="style_column"
+			bg_opa="0"
+			border_width="0"
+			pad_all="0"
+			radius="0"
+			pad_row="{space_xs}"
+		/>
+
+		<!-- Half-circle lean gauge -->
+		<style
+			name="style_gauge_track"
+			arc_color="{color_gauge}"
+			arc_width="{lean_gauge_width}"
+			arc_rounded="false"
+			bg_opa="0"
+			border_width="0"
+			pad_all="0"
+		/>
+		<style
+			name="style_gauge_fill"
+			arc_color="{color_accent}"
+			arc_width="{lean_gauge_width}"
+			arc_rounded="false"
+		/>
+		<!-- No knob: the blue fill alone shows the lean -->
+		<style
+			name="style_gauge_knob"
+			bg_opa="0"
+			border_width="0"
+			shadow_width="0"
+			outline_width="0"
+		/>
+		<style name="style_lean_value" text_font="font_lean" />
+
+		<!-- G bars and their scales -->
+		<style
+			name="style_g_track"
+			bg_color="{color_track}"
+			bg_opa="100%"
+			radius="3"
+			pad_all="0"
+		/>
+		<style
+			name="style_g_fill"
+			bg_color="{color_gauge}"
+			bg_opa="100%"
+			radius="3"
+		/>
+		<style
+			name="style_g_scale"
+			line_color="{color_text_muted}"
+			line_width="1"
+			text_color="{color_text_muted}"
+			text_font="font_small"
+			length="6"
+		/>
+		<style
+			name="style_g_scale_major"
+			line_color="{color_text}"
+			line_width="2"
+			length="10"
+			text_color="{color_text}"
+		/>
+
+		<!-- Accent line and title under the gauge -->
+		<style
+			name="style_accent_line"
+			bg_color="{color_accent}"
+			bg_opa="100%"
+			border_width="0"
+			radius="0"
+			pad_all="0"
+		/>
+		<style
+			name="style_title"
+			text_color="{color_accent_text}"
+			text_font="font_title"
+		/>
+
+		<!-- Aggressive lean warning (lean_danger or more): gauge, line and title turn red -->
+		<style name="style_gauge_fill_danger" arc_color="{color_danger}" />
+		<style name="style_accent_line_danger" bg_color="{color_danger}" />
+		<!-- White, not red: the title sits on the red part of the danger background -->
+		<style name="style_title_danger" text_color="{color_text}" />
+
+		<!-- Reset gyro button -->
+		<style
+			name="style_button"
+			bg_color="{color_bg_top}"
+			bg_opa="60%"
+			border_color="{color_accent}"
+			border_width="2"
+			radius="16"
+			shadow_width="0"
+			pad_hor="{space_md}"
+			pad_ver="{space_xs}"
+			text_color="{color_text}"
+			text_font="font_small"
+		/>
+		<style
+			name="style_button_pressed"
+			bg_color="{color_accent}"
+			bg_opa="100%"
+		/>
+		<style
+			name="style_button_disabled"
+			border_color="{color_warn}"
+			text_color="{color_warn}"
+		/>
+	</styles>
+
+	<!-- Deceleration | lean gauge | acceleration -->
+	<view
+		extends="lv_obj"
+		flex_flow="row"
+		scrollable="false"
+		style_flex_main_place="space_between"
+		style_flex_cross_place="center"
+	>
+		<style name="style_screen" />
+		<style
+			name="style_screen_warn"
+			enabled="{subject_lean_abs_deg GE lean_warn AND subject_lean_abs_deg LT lean_danger}"
+		/>
+		<style
+			name="style_screen_danger"
+			enabled="{subject_lean_abs_deg GE lean_danger}"
+		/>
+
+		<!-- Hold anywhere on the screen to reset the max lean memories -->
+		<set_subject_event
+			trigger="long_pressed"
+			subject="subject_lean_max_left"
+			value="0"
+		/>
+		<set_subject_event
+			trigger="long_pressed"
+			subject="subject_lean_max_right"
+			value="0"
+		/>
+
+		<!-- ============ Deceleration: fills downward, 0.0 at the top ============ -->
+		<lv_obj
+			width="100"
+			height="100%"
+			flex_flow="column"
+			scrollable="false"
+			clickable="false"
+			style_flex_main_place="center"
+			style_flex_cross_place="center"
+		>
+			<style name="style_column" />
+
+			<!-- pad_ver: room for the half of the end labels that sticks out of the scale -->
+			<lv_obj
+				width="content"
+				height="content"
+				flex_flow="row"
+				scrollable="false"
+				clickable="false"
+				style_pad_column="{space_xs}"
+				style_pad_ver="{space_md}"
+			>
+				<style name="style_column" />
+				<!-- Labels from the bottom (min) up -->
+				<lv_scale
+					width="44"
+					height="{g_bar_height}"
+					mode="vertical_left"
+					min_value="0"
+					max_value="{g_full_scale}"
+					total_tick_count="16"
+					major_tick_every="5"
+					label_show="true"
+					ext_draw_size="{space_md}"
+					text_src="'1.5' '1.0' '0.5' '0.0'"
+				>
+					<style name="style_g_scale" selector="items" />
+					<style name="style_g_scale" />
+					<style name="style_g_scale_major" selector="indicator" />
+				</lv_scale>
+				<!-- min greater than max: the bar fills from the top -->
+				<lv_bar
+					width="{g_bar_width}"
+					height="{g_bar_height}"
+					orientation="vertical"
+					min_value="{g_full_scale}"
+					max_value="0"
+					bind_value="subject_g_decel_cg"
+				>
+					<style name="style_g_track" />
+					<style name="style_g_fill" selector="indicator" />
+				</lv_bar>
+			</lv_obj>
+
+			<lv_label
+				text="{subject_g_decel_cg / 100 . '.' . subject_g_decel_cg % 100 / 10 . ' G'}"
+			>
+				<style name="style_value" />
+			</lv_label>
+			<lv_label text="Deceleration">
+				<style name="style_text_muted" />
+			</lv_label>
+		</lv_obj>
+
+		<!-- ============ Lean angle ============ -->
+		<lv_obj
+			width="{lean_gauge_size + 8}"
+			height="100%"
+			flex_flow="column"
+			scrollable="false"
+			clickable="false"
+			style_flex_main_place="center"
+			style_flex_cross_place="center"
+		>
+			<style name="style_column" />
+
+			<!-- Only the top half of the arc is drawn, so clip the box to just over the radius -->
+			<lv_obj
+				width="100%"
+				height="{lean_gauge_size / 2 + 6}"
+				scrollable="false"
+				clickable="false"
+			>
+				<style name="style_column" />
+
+				<!-- Rotated 180: 0 deg is at 9 o'clock, so 0..180 is the top half.
+                     -lean_limit (full left) at the left end, 0 at the top, +lean_limit (full right)
+                     at the right end. LVGL clamps a lean beyond the limit to a full arc.
+                     Not clickable: the binding is two-way and a touch must not change the lean. -->
+				<lv_arc
+					width="{lean_gauge_size}"
+					height="{lean_gauge_size}"
+					align="top_mid"
+					rotation="180"
+					bg_start_angle="0"
+					bg_end_angle="180"
+					min_value="{-lean_limit}"
+					max_value="{lean_limit}"
+					mode="symmetrical"
+					bind_value="subject_lean_deg"
+					clickable="false"
+				>
+					<style name="style_gauge_track" />
+					<style name="style_gauge_fill" selector="indicator" />
+					<style
+						name="style_gauge_fill_danger"
+						selector="indicator"
+						enabled="{subject_lean_abs_deg GE lean_danger}"
+					/>
+					<style name="style_gauge_knob" selector="knob" />
+				</lv_arc>
+
+				<lv_label
+					align="bottom_mid"
+					text="{subject_lean_abs_deg . '°'}"
+					style_text_color="{subject_lean_abs_deg GE lean_danger ? color_danger : (subject_lean_abs_deg GE lean_warn ? color_warn : color_text)}"
+				>
+					<style name="style_lean_value" />
+				</lv_label>
+			</lv_obj>
+
+			<!-- Max lean left | MAX | max lean right -->
+			<lv_obj
+				width="100%"
+				height="content"
+				flex_flow="row"
+				scrollable="false"
+				clickable="false"
+				style_flex_main_place="space_between"
+				style_flex_cross_place="center"
+				style_pad_hor="{space_xs}"
+			>
+				<style name="style_column" />
+				<lv_label
+					text="{subject_lean_max_left == 0 ? '--°' : subject_lean_max_left . '°'}"
+				>
+					<style name="style_value" />
+				</lv_label>
+				<!-- Current lean angle between the two maximums -->
+				<lv_label text="{subject_lean_abs_deg . '°'}">
+					<style name="style_value" />
+				</lv_label>
+				<lv_label
+					text="{subject_lean_max_right == 0 ? '--°' : subject_lean_max_right . '°'}"
+				>
+					<style name="style_value" />
+				</lv_label>
+			</lv_obj>
+
+			<lv_obj width="100%" height="3" clickable="false">
+				<style name="style_accent_line" />
+				<style
+					name="style_accent_line_danger"
+					enabled="{subject_lean_abs_deg GE lean_danger}"
+				/>
+			</lv_obj>
+
+			<!-- The title becomes the warning while the lean is aggressive -->
+			<lv_label
+				text="{subject_lean_abs_deg GE lean_danger ? 'AGGRESSIVE LEAN!' : ''}"
+			>
+				<style name="style_title" />
+				<style
+					name="style_title_danger"
+					enabled="{subject_lean_abs_deg GE lean_danger}"
+				/>
+			</lv_label>
+
+			<!-- Gyro reset, disabled while the firmware is calibrating -->
+			<lv_button
+				height="32"
+				style_margin_top="{space_sm}"
+				disabled="{subject_imu_calibrating == 1}"
+			>
+				<style name="style_button" />
+				<style name="style_button_pressed" selector="pressed" />
+				<style name="style_button_disabled" selector="disabled" />
+				<set_subject_event
+					subject="subject_imu_cal_request"
+					value="1"
+				/>
+
+				<lv_label
+					align="center"
+					text="{subject_imu_calibrating == 1 ? 'HOLD STILL' : 'RESET GYRO'}"
+				/>
+			</lv_button>
+		</lv_obj>
+
+		<!-- ============ Acceleration: fills upward, 0.0 at the bottom ============ -->
+		<lv_obj
+			width="100"
+			height="100%"
+			flex_flow="column"
+			scrollable="false"
+			clickable="false"
+			style_flex_main_place="center"
+			style_flex_cross_place="center"
+		>
+			<style name="style_column" />
+
+			<!-- pad_ver: room for the half of the end labels that sticks out of the scale -->
+			<lv_obj
+				width="content"
+				height="content"
+				flex_flow="row"
+				scrollable="false"
+				clickable="false"
+				style_pad_column="{space_xs}"
+				style_pad_ver="{space_md}"
+			>
+				<style name="style_column" />
+				<lv_bar
+					width="{g_bar_width}"
+					height="{g_bar_height}"
+					orientation="vertical"
+					min_value="0"
+					max_value="{g_full_scale}"
+					bind_value="subject_g_accel_cg"
+				>
+					<style name="style_g_track" />
+					<style name="style_g_fill" selector="indicator" />
+				</lv_bar>
+				<lv_scale
+					width="44"
+					height="{g_bar_height}"
+					mode="vertical_right"
+					min_value="0"
+					max_value="{g_full_scale}"
+					total_tick_count="16"
+					major_tick_every="5"
+					label_show="true"
+					ext_draw_size="{space_md}"
+					text_src="'0.0' '0.5' '1.0' '1.5'"
+				>
+					<style name="style_g_scale" selector="items" />
+					<style name="style_g_scale" />
+					<style name="style_g_scale_major" selector="indicator" />
+				</lv_scale>
+			</lv_obj>
+
+			<lv_label
+				text="{subject_g_accel_cg / 100 . '.' . subject_g_accel_cg % 100 / 10 . ' G'}"
+			>
+				<style name="style_value" />
+			</lv_label>
+			<lv_label text="Acceleration">
+				<style name="style_text_muted" />
+			</lv_label>
+		</lv_obj>
+	</view>
+</screen>

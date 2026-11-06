@@ -1,0 +1,58 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Configure",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["-S", "sim", "-B", "build", "-DCMAKE_BUILD_TYPE=Debug"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake build",
+      "type": "shell",
+      "command": "cmake",
+      "args": ["--build", "build", "-j"],
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": "Configure",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": []
+    },
+    {
+      "label": "ESP32: Build & Flash",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command",
+        ". 'C:\\Espressif\\tools\\Microsoft.v6.1.PowerShell_profile.ps1' | Out-Null; idf.py -p COM4 build flash"
+      ],
+      "options": { "cwd": "${workspaceFolder}/../inclin_fw" },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "ESP32: Build, Flash & Monitor",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command",
+        ". 'C:\\Espressif\\tools\\Microsoft.v6.1.PowerShell_profile.ps1' | Out-Null; idf.py -p COM4 build flash monitor"
+      ],
+      "options": { "cwd": "${workspaceFolder}/../inclin_fw" },
+      "group": "build",
+      "problemMatcher": []
+    },
+    {
+      "label": "ESP32: Auto-flash on export",
+      "type": "process",
+      "command": "powershell.exe",
+      "args": [
+        "-NoProfile", "-ExecutionPolicy", "Bypass",
+        "-File", "${workspaceFolder}/.vscode/auto_flash.ps1", "-Port", "COM4"
+      ],
+      "isBackground": true,
+      "problemMatcher": []
+    }
+  ]
+}
